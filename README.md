@@ -1,9 +1,10 @@
 # Pneumonia Detection from Chest X-Ray Images using CNN
 
-## Overview
+Overview
 
-This project implements a **Convolutional Neural Network (CNN)** using **TensorFlow** and **Keras** to automatically classify chest X-ray images as either **NORMAL** or **PNEUMONIA**. The model is trained on a dataset of paediatric chest X-rays and aims to assist in early detection of pneumonia.
+This project implements a Stacked Ensemble of Convolutional Neural Networks (CNNs) using TensorFlow and Keras to automatically classify chest X-ray images as either NORMAL or PNEUMONIA.
 
+Instead of relying on a single CNN, multiple models are combined using a stacking strategy to improve prediction accuracy and robustness.
 ## Dataset
 
 The dataset contains **5,856 JPEG chest X-ray images** (anterior-posterior view) collected from paediatric patients aged 1 to 5 years at a renowned hospital. These images were captured as part of the routine clinical care of the patients.
@@ -34,17 +35,20 @@ All images are resized to **150 x 150 pixels** and pixel values are normalised t
 
 ### Data Augmentation
 
-The following augmentation techniques are applied to training images to increase data diversity and reduce overfitting:
+Methodology (Updated)
+Model Architecture (Stacked CNN Ensemble)
 
-- Rotation (up to 20 degrees)
-- Width and height shifting (up to 20%)
-- Shear transformation (up to 20%)
-- Zoom (up to 20%)
-- Horizontal flipping
-- Nearest-neighbour fill mode
+Instead of a single model, a stacking framework is used.
 
-**Important**: Validation and test images are only rescaled — no augmentation is applied to them, preserving the integrity of the evaluation.
+🔹 Base CNN Models
 
+Three CNN models are trained independently:
+
+CNN Model A — original architecture
+CNN Model B — slightly deeper (more filters/layers)
+CNN Model C — lighter model (fewer layers)
+
+Each model learns different feature representations from the same input data.
 ### Addressing Class Imbalance
 
 Class weights are calculated inversely proportional to the frequency of each class. This ensures the model pays more attention to the underrepresented NORMAL class during training, preventing it from simply predicting PNEUMONIA for every input.
@@ -167,6 +171,29 @@ pip install -r requirements.txt
 ```bash
 python chest_xray_analysis.py
 ```
+Why Stacking?
+Different CNNs capture different patterns
+Reduces overfitting compared to a single model
+Improves generalisation on unseen data
+Combines strengths of multiple learners
+Training Strategy (Updated)
+Each CNN model is trained separately using the same dataset
+Class weights are applied to handle imbalance
+Early stopping and learning rate scheduling are used
+Predictions from the validation set are collected
+These predictions are used to train the meta-model
+Findings (Updated for Stacking)
+Performance
+
+The stacked model achieves more stable and improved performance compared to a single CNN model.
+
+Key Takeaways
+Stacking improves performance — Combining multiple CNN models leads to better predictive accuracy and robustness than any individual model.
+Model diversity is crucial — Using CNNs with different complexities allows the system to capture both simple and complex lung patterns.
+High recall remains critical — The stacked model improves detection of pneumonia cases, reducing false negatives, which is essential in medical diagnosis.
+Class imbalance handling remains important — Class weights prevent bias toward the majority class.
+Better generalisation — The ensemble model performs more consistently across different data splits.
+Trade-off: computation cost — Training multiple CNNs increases computational time and resource usage.
 
 The script handles everything automatically — from loading data to saving the trained model and evaluation results.
 
